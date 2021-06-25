@@ -1,63 +1,64 @@
+let page = 1
+getHeroesList(page)
+
 const listContainer = document.getElementById('heroes-list')
 const previousBtn = document.getElementById('previous')
 const nextBtn = document.getElementById('next')
-let responseList;
+const paginationBtns = document.getElementById('pagination-btns')
 
-// previousBtn.addEventListener('click', displayHeroesList.bind(this,'previous'))
-let page = 1
-nextBtn.addEventListener('click', function () {
-  if (page < 10) {
+paginationBtns.addEventListener('click', setPage)
+
+function setPage(e) {
+  let target = e && e.target
+  if (target.getAttribute('id') === 'next' && page < 10) {
     page += 1
+    previousBtn.removeAttribute('disabled', 'disabled')
+  } else if (target.getAttribute('id') === 'previous' && page > 1) {
+    page -= 1
+    nextBtn.removeAttribute('disabled', 'disabled')
   }
   getHeroesList(page)
-})
+}
 
-function showPhoto(e) {
+function showHeroInfo(hero) {
+  console.log(hero)
+}
+
+function toggleVisibility(e) {
   let target = e && e.target
-  target.childNodes[1].style.visibility = 'visible';
+  if (target && e.type === 'mouseenter') target.childNodes[1].style.visibility = 'visible';
+  if (target && e.type === 'mouseleave') target.childNodes[1].style.visibility = 'hidden';
 }
 
-function hidePhoto(e) {
-  let target = e.target
-  target.childNodes[1].style.visibility = 'hidden';
-}
+function displayHeroesList(response) {
+  let responseList = response.data.results
 
-function displayHeroesList(response, page) {
-  console.log(page)
-  responseList = response.data.results
+  listContainer.innerHTML = ''
+ 
+  if (response.data.previous === null) {
+    previousBtn.setAttribute('disabled', 'disabled');
+  } else if (response.data.next === null) {
+    nextBtn.setAttribute('disabled', 'disabled');
+  }
   
-  responseList.map(item => {
+  responseList.map(hero => {
     const liElement = document.createElement('li')
     const imgElement = document.createElement('img')
-    imgElement.setAttribute('src', `images/${item.name.replace(/\s+/g, '')}.jpg`)
-    let heroName = item.name
-    console.log(item.name.replace(/\s+/g, ''))
+    let heroName = hero.name
+    
     liElement.innerHTML = heroName
     liElement.insertAdjacentElement('beforeend', imgElement)
+    imgElement.setAttribute('src', `images/${hero.name.replace(/\s+/g, '')}.jpg`)
+
     listContainer.appendChild(liElement)
 
-    liElement.addEventListener('mouseenter', showPhoto)
-    liElement.addEventListener('mouseleave', hidePhoto)
+    liElement.addEventListener('mouseenter', toggleVisibility)
+    liElement.addEventListener('mouseleave', toggleVisibility)
+    liElement.addEventListener('click', showHeroInfo.bind(this, hero))
   })
 }
 
 function getHeroesList(page) {
-  let apiUrl
-  if (!page) {
-    apiUrl = `https://swapi.dev/api/people/?page=1`
-  } else {
-    apiUrl = `https://swapi.dev/api/people/?page=${page}`
-  }
-  
-  axios.get(apiUrl).then(response => displayHeroesList(response, page)).catch(error => console.log(error))
+  let apiUrl = `https://swapi.dev/api/people/?page=${page}`
+  axios.get(apiUrl).then(displayHeroesList).catch(error => console.log(error))
 }
-
-getHeroesList()
-// getHeroesList('?page=2')
-// getHeroesList('?page=3')
-// getHeroesList('?page=4')
-// getHeroesList('?page=5')
-// getHeroesList('?page=6')
-// getHeroesList('?page=7')
-// getHeroesList('?page=8')
-// getHeroesList('?page=9')
