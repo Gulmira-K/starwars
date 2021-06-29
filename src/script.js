@@ -1,9 +1,5 @@
 let page;
  
-function storePage(page) {
-  localStorage.setItem('page', page)
-}
-
 if (!localStorage.getItem('page')) {
   page = 1
   storePage(page)
@@ -18,38 +14,94 @@ const previousBtn = document.getElementById('previous')
 const nextBtn = document.getElementById('next')
 const paginationBtns = document.getElementById('pagination-btns')
 const modal = document.querySelector('.modal')
-const description = document.querySelector('.description')
+const closeBtn = document.getElementById('closeBtn')
+const heroName = document.querySelector('.hero-name')
+const gender = document.querySelector('.gender')
+const birthYear = document.querySelector('.birth-year')
+const species = document.querySelector('.species')
+const planet = document.querySelector('.planet')
+const films = document.querySelector('.films')
 
 paginationBtns.addEventListener('click', setPage)
+closeBtn.addEventListener('click', toggleModal)
+
+function getSpecies(url) {
+  let species = document.querySelectorAll('td')[2]
+  if (url.length === 0) {
+    species.innerHTML = 'N/A'
+  } else {
+     axios.get(url)
+    .then((response) => {
+     species.innerHTML = response.data.name
+    })
+    .catch(error => console.log(error))
+  }
+}
+
+function getPlanet(url) {
+  axios.get(url)
+    .then((response) => {
+      let planet = document.querySelectorAll('td')[3]
+      planet.innerHTML = response.data.name
+    })
+    .catch(error => console.log(error))
+}
+
+function getFilms(list) {
+  let filmsList = document.querySelector('.films')
+  if (list.length === 0) {
+    filmsList.innerHTML = 'N/A'
+  } else {
+    for (url of list) {
+    axios.get(url)
+      .then((response) => {
+        let li = document.createElement('li');
+        li.innerHTML = response.data.title
+        filmsList.appendChild(li)
+      })
+    .catch(error => console.log(error))
+    }
+  }
+}
 
 function toggleModal() {
   modal.classList.toggle('invisible')
 }
 
 function showHeroInfo(hero) {
+  getSpecies(hero.species)
+  getPlanet(hero.homeworld)
+  getFilms(hero.films)
+  heroName.insertAdjacentText('afterbegin', hero.name)
+  gender.innerHTML = hero.gender
+  birthYear.innerHTML = hero.birth_year
+ 
   toggleModal();
-  description.innerHTML = `<tr><th scope="row" colspan="2" class='hero-name'>${hero.name}<button onclick='toggleModal()' id='closeBtn'>&#10006</button></th></tr>
-                          <tr><th scope="row" class='hero-data'>Gender</th><td>${hero.gender}</td></tr>
-                          <tr><th scope="row" class='hero-data'>Birth year</th><td>${hero.birth_year}</td></tr>
-                          <tr><th scope="row" class='hero-data'>Eye color</th><td>${hero.eye_color}</td></tr>
-                          <tr><th scope="row" class='hero-data'>Height</th><td>${hero.height}</td></tr>
-                          <tr><th scope="row" class='hero-data'>Mass</th><td>${hero.mass}</td></tr>
-                          <tr><th scope="row" class='hero-data'>Skin color</th><td>${hero.skin_color}</td></tr>`
 }
 
 function toggleImgVisibility(e) {
   let target = e && e.target
-  if (target && e.type === 'mouseenter') target.childNodes[1].style.visibility = 'visible';
-  if (target && e.type === 'mouseleave') target.childNodes[1].style.visibility = 'hidden';
+  if (target && e.type === 'mouseenter') {
+    target.style.transform = 'scale(1.1)'
+    target.childNodes[1].style.visibility = 'visible'
+  }
+  if (target && e.type === 'mouseleave') {
+    target.style.transform = 'scale(1)'
+    target.childNodes[1].style.visibility = 'hidden';
+  }
+}
+
+function storePage(page) {
+  localStorage.setItem('page', page)
 }
 
 function setPage(e) {
   let target = e && e.target
   if (target.getAttribute('id') === 'next' && page < 9) {
-    page += 1
+    ++ page
     previousBtn.removeAttribute('disabled', 'disabled')
   } else if (target.getAttribute('id') === 'previous' && page > 1) {
-    page -= 1
+    -- page
     nextBtn.removeAttribute('disabled', 'disabled')
   }
   storePage(page)
@@ -74,6 +126,7 @@ function displayHeroesList(response) {
     
     liElement.innerHTML = heroName
     liElement.insertAdjacentElement('beforeend', imgElement)
+    liElement.classList.add('hero')
     imgElement.setAttribute('src', `images/${hero.name.replace(/\s+/g, '')}.jpg`)
 
     listContainer.appendChild(liElement)

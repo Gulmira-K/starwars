@@ -27,7 +27,7 @@ h1 {
   align-content: center;
 }
 
-li {
+.hero {
   text-transform: uppercase;
   text-align: center;
   display: flex;
@@ -42,6 +42,7 @@ li {
   border: 1px solid yellow;
   position: relative;
   cursor: pointer;
+  transition: all 0.5s linear;
 }
 img {
   width: 100%;
@@ -81,8 +82,8 @@ img {
   transition: transform 0.3s ease-out;
 }
 .description {
-  height: 500px;
-  width: 370px;
+  height: 550px;
+  width: 450px;
   background-color: black;
   position: absolute;
   top: 50%;
@@ -107,6 +108,9 @@ td {
   text-align: left;
   border: 1px solid yellow;
   padding-left: 10px;
+}
+.films {
+  padding-left: 30px;
 }
 #closeBtn {
   position: absolute;
