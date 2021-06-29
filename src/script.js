@@ -20,13 +20,12 @@ const gender = document.querySelector('.gender')
 const birthYear = document.querySelector('.birth-year')
 const species = document.querySelector('.species')
 const planet = document.querySelector('.planet')
-const films = document.querySelector('.films')
+const filmsList = document.querySelector('.films')
 
 paginationBtns.addEventListener('click', setPage)
 closeBtn.addEventListener('click', toggleModal)
 
 function getSpecies(url) {
-  let species = document.querySelectorAll('td')[2]
   if (url.length === 0) {
     species.innerHTML = 'N/A'
   } else {
@@ -41,14 +40,12 @@ function getSpecies(url) {
 function getPlanet(url) {
   axios.get(url)
     .then((response) => {
-      let planet = document.querySelectorAll('td')[3]
       planet.innerHTML = response.data.name
     })
     .catch(error => console.log(error))
 }
 
 function getFilms(list) {
-  let filmsList = document.querySelector('.films')
   if (list.length === 0) {
     filmsList.innerHTML = 'N/A'
   } else {
@@ -65,18 +62,24 @@ function getFilms(list) {
 }
 
 function toggleModal() {
+  heroName.innerHTML = ''
+  gender.innerHTML = ''
+  birthYear.innerHTML = ''
+  species.innerHTML = ''
+  planet.innerHTML = ''
+  filmsList.innerHTML = ''
   modal.classList.toggle('invisible')
 }
 
 function showHeroInfo(hero) {
+  toggleModal();
+
   getSpecies(hero.species)
   getPlanet(hero.homeworld)
   getFilms(hero.films)
-  heroName.insertAdjacentText('afterbegin', hero.name)
+  heroName.innerHTML = hero.name
   gender.innerHTML = hero.gender
   birthYear.innerHTML = hero.birth_year
- 
-  toggleModal();
 }
 
 function toggleImgVisibility(e) {
